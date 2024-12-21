@@ -44,6 +44,7 @@ if (global.chatgpt.data === null) await global.loadChatgptDB()
 /*------------------------------------------------*/	
 try {
 m = smsg(this, m) || m
+global.mconn = m
 if (!m)
 return
 m.exp = 0
@@ -101,6 +102,9 @@ if (!isNumber(user.semangka)) user.semangka = 0
 if (!isNumber(user.stroberi)) user.stroberi = 0
 }
 	              		    
+if (!isNumber(user.counterPrivate)) user.counterPrivate = 0	    
+if (!isNumber(user.fechaActualBD)) user.fechaActualBD = 0 //kurt18                 		    
+if (!isNumber(user.fechaUltimoMsjInbox)) user.fechaUltimoMsjInbox = 0 //kurt18
 if (!isNumber(user.afk)) user.afk = -1
 //if (!('autolevelup' in user))  user.autolevelup = true
 if (!isNumber(user.reporte)) user.reporte = 0
@@ -411,6 +415,7 @@ if (!isNumber(user.pancingan)) user.pancingan = 1
 if (!isNumber(user.panda)) user.panda = 0
 if (!isNumber(user.paus)) user.paus = 0
 if (!isNumber(user.pausbakar)) user.pausbakar = 0
+if (!isNumber(user.pc)) user.pc = 0
 if (!isNumber(user.pepesikan)) user.pepesikan = 0
 if (!isNumber(user.pertambangan)) user.pertambangan = 0
 if (!isNumber(user.pertanian)) user.pertanian = 0
@@ -518,6 +523,9 @@ if (!user.rtrofi) user.rtrofi = 'Bronce'
 } else
 global.db.data.users[m.sender] = {
 midLanguage: 0,
+counterPrivate: 0,
+fechaActualBD: 0, //kurt18	 
+fechaUltimoMsjInbox: 0, //kurt18
 afk: -1,
 afkReason: '',
 reporte: 0,
@@ -831,6 +839,7 @@ panda: 0,
 pasangan: '',
 paus: 0,
 pausbakar: 0,
+pc: 0,
 pepesikan: 0,
 pet: 0,
 phonix: 0,
@@ -975,12 +984,11 @@ if (!('sBye' in chat)) chat.sBye = ''
 if (!('sPromote' in chat)) chat.sPromote = ''             
 if (!('sDemote' in chat)) chat.sDemote = '' 
 if (!('sCondition' in chat)) chat.sCondition = JSON.stringify([{ grupo: { usuario: [], condicion: [], admin: '' }, prefijos: []}])
-if (!('sAutorespond' in chat)) chat.sAutorespond = '' 
 if (!('delete' in chat)) chat.delete = false                   
 if (!('modohorny' in chat)) chat.modohorny = true       
 if (!('stickers' in chat)) chat.stickers = false            
 if (!('autosticker' in chat)) chat.autosticker = false      
-if (!('audios' in chat)) chat.audios = true               
+if (!('audios' in chat)) chat.audios = false               
 if (!('antiver' in chat)) chat.antiver = false 
 if (!('antiPorn' in chat)) chat.antiPorn = true     
 if (!('antiLink' in chat)) chat.antiLink = false     
@@ -995,23 +1003,16 @@ if (!('antiDiscord' in chat)) chat.antiDiscord = false
 if (!('antiThreads' in chat)) chat.antiThreads = false
 if (!('antiTwitch' in chat)) chat.antiTwitch = false
 if (!('antifake' in chat)) chat.antifake = false
-if (!('reaction' in chat)) chat.reaction = true    
+if (!('reaction' in chat)) chat.reaction = false    
 if (!('viewonce' in chat)) chat.viewonce = false       
-if (!('modoadmin' in chat)) chat.modoadmin = false  
-if (!('autorespond' in chat)) chat.autorespond = true
-if (!('antitoxic' in chat)) chat.antitoxic = true
+if (!('modoadmin' in chat)) chat.modoadmin = false    
+if (!('antitoxic' in chat)) chat.antitoxic = false
 if (!('game' in chat)) chat.game = true
 if (!('game2' in chat)) chat.game2 = true
 if (!('simi' in chat)) chat.simi = false
 if (!('antiTraba' in chat)) chat.antiTraba = true
 if (!('autolevelup' in chat))  chat.autolevelup = false
 if (!isNumber(chat.expired)) chat.expired = 0
-if (!('horarioNsfw' in chat)) { 
-chat.horarioNsfw = {
-inicio: "00:00", 
-fin: "23:59"
-};
-}
 } else
 global.db.data.chats[m.chat] = {
 isBanned: false,
@@ -1022,13 +1023,12 @@ sBye: '',
 sPromote: '',
 sDemote: '', 
 sCondition: JSON.stringify([{ grupo: { usuario: [], condicion: [], admin: '' }, prefijos: []}]), 
-sAutorespond: '', 
 delete: false,
 modohorny: true,
 stickers: false,
 autosticker: false,
 audios: false,
-antiver: true,
+antiver: false,
 antiPorn: true,
 antiLink: false,
 antiLink2: false,
@@ -1042,21 +1042,16 @@ antiDiscord: false,
 antiThreads: false,
 antiTwitch: false,
 antifake: false,
-reaction: true,
+reaction: false,
 viewonce: false,
 modoadmin: false,
-autorespond: true,
-antitoxic: true,
+antitoxic: false,
 game: true, 
 game2: true, 
 simi: false,
 antiTraba: true,
 autolevelup: false,
 expired: 0,
-horarioNsfw: {
-inicio: "00:00", 
-fin: "23:59"
-}
 }
 let settings = global.db.data.settings[this.user.jid]
 if (typeof settings !== 'object') global.db.data.settings[this.user.jid] = {}
@@ -1281,8 +1276,8 @@ if (xp > 2000)
 m.reply('Exp limit') // Hehehe
 else               
 if (!isPrems && plugin.money && global.db.data.users[m.sender].money < plugin.money * 1) {
-//this.reply(m.chat, `No tiene ${global.packname}coins`, m)
-this.sendMessage(m.chat, {text: `No tiene ${global.packname}coins`,  contextInfo: {externalAdReply :{ mediaUrl: null, mediaType: 1, description: null, title: gt, body: wm, previewType: 0, thumbnail: gataImg, sourceUrl: accountsgb }}}, { quoted: m })         
+//this.reply(m.chat, `🐈 𝙉𝙊 𝙏𝙄𝙀𝙉𝙀 𝙏𝙍𝙐𝙀𝙉𝙊𝘾𝙊𝙄𝙉𝙎`, m)
+this.sendMessage(m.chat, {text: `🐈 𝙉𝙊 𝙏𝙄𝙀𝙉𝙀 𝙏𝙍𝙐𝙀𝙉𝙊𝘾𝙊𝙄𝙉𝙎`,  contextInfo: {externalAdReply :{ mediaUrl: null, mediaType: 1, description: null, title: gt, body: wm, previewType: 0, thumbnail: gataImg, sourceUrl: accountsgb }}}, { quoted: m })         
 continue     
 }
 			
@@ -1352,7 +1347,7 @@ if (m.limit)
 m.reply(+m.limit + lenguajeGB.smsCont8())
 }
 if (m.money)
-m.reply(+m.money + ' COINS USADOS')  
+m.reply(+m.money + ' 𝙏𝙍𝙐𝙀𝙉𝙊𝘾𝙊𝙄𝙉𝙎 🐱 𝑮𝑨𝑺𝑻𝑨𝑫𝑶(𝑺)')  
 break
 }}} catch (e) {
 console.error(e)
@@ -1481,8 +1476,9 @@ export async function participantsUpdate({ id, participants, action }) {
 
 /**
  * Handle groups update
- * @param {import('@adiwajshing/baileys').BaileysEventMap<unknown>['groups.update']} groupsUpdate 
+ * @param {import("baileys").BaileysEventMap<unknown>['groups.update']} groupsUpdate
  */
+
 export async function groupsUpdate(groupsUpdate) {
 if (opts['self'] && !isOwner && !isROwner)
 return
@@ -1547,7 +1543,7 @@ restrict: lenguajeGB['smsRestrict'](),
 //if (msg) return m.reply(msg)
 	
 let tg = { quoted: m, userJid: conn.user.jid }
-let prep = generateWAMessageFromContent(m.chat, { extendedTextMessage: { text: msg, contextInfo: { externalAdReply: { title: lenguajeGB.smsAvisoAG().slice(0,-2), body: [wm].getRandom(), thumbnail: gataImg, sourceUrl: accountsgb }}}}, tg)
+let prep = generateWAMessageFromContent(m.chat, { extendedTextMessage: { text: msg, contextInfo: { externalAdReply: { title: lenguajeGB.smsAvisoAG().slice(0,-2), body: [wm, 'TruenoBot ' + gt + ' ', '@vsebas.y'].getRandom(), thumbnail: gataImg, sourceUrl: accountsgb }}}}, tg)
 if (msg) return conn.relayMessage(m.chat, prep.message, { messageId: prep.key.id })
 }
 
